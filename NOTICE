@@ -1,0 +1,5 @@
+Monoforest was extracted from a local FlexNeuART working tree.
+monoforest.util.QueryTextUtils adapts text preprocessing from FlexNeuART StringUtils.
+Original copyright: 2015+ Carnegie Mellon University, Apache License 2.0.
+See LICENSE and the retained source header.
+The existing POS model and dictionary are copied unchanged from the source project.

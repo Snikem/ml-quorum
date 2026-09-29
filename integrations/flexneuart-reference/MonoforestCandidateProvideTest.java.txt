@@ -1,0 +1,107 @@
+package edu.cmu.lti.oaqa.flexneuart.cand_providers.monoforest_candidate_provider;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.*;
+import edu.cmu.lti.oaqa.flexneuart.resources.*;
+import edu.cmu.lti.oaqa.flexneuart.utils.*;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.store.*;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import static org.junit.Assert.*;
+
+public class MonoforestCandidateProvideTest {
+    @Rule public TemporaryFolder temp = new TemporaryFolder();
+    private Path root, index, model;
+    private final ObjectMapper json = new ObjectMapper();
+
+    @Before public void prepare() throws Exception {
+        root = temp.newFolder("resources").toPath();
+        index = Files.createDirectory(root.resolve("index"));
+        try (Directory dir = FSDirectory.open(index); WhitespaceAnalyzer analyzer = new WhitespaceAnalyzer();
+             IndexWriter writer = new IndexWriter(dir, new IndexWriterConfig(analyzer))) {
+            String[] texts = {"cat", "cat cat cat", "cat cat cat cat cat", "dog dog dog"};
+            for (int i = 0; i < texts.length; i++) {
+                Document doc = new Document();
+                doc.add(new StringField("id", "d" + i, Field.Store.YES));
+                doc.add(new TextField("body", texts[i], Field.Store.YES));
+                doc.add(new StoredField("heading", "Title " + i));
+                doc.add(new FloatPoint("doc_word_count", texts[i].split(" ").length));
+                writer.addDocument(doc);
+            }
+        }
+        model = root.resolve("model.json");
+        Files.writeString(model, "{\"format\":\"monomial_linear_v1\",\"intercept\":-0.5,"
+                + "\"feature_names\":[\"doc_word_count\",\"ExactMatchCount\"],\"monomials\":["
+                + "{\"trained_coef\":2,\"splits\":["
+                + "{\"feature_idx\":0,\"feature_name\":\"doc_word_count\",\"comparison\":\"GT\",\"border\":2},"
+                + "{\"feature_idx\":1,\"feature_name\":\"ExactMatchCount\",\"comparison\":\"GT\",\"border\":0}]},"
+                + "{\"trained_coef\":-3,\"splits\":["
+                + "{\"feature_idx\":0,\"feature_name\":\"doc_word_count\",\"comparison\":\"GT\",\"border\":4}]}]}");
+    }
+
+    private MonoforestCandidateProvide provider(double threshold) throws Exception {
+        return new MonoforestCandidateProvide(index.toString(), model.toString(), threshold, "query_text", "body", "heading");
+    }
+    private DataEntryFields query(String text) throws Exception {
+        return JSONDataUtils.parseJSONEntry(json.createObjectNode().put("DOCNO", "q1").put("query_text", text).toString(), 0);
+    }
+
+    @Test public void usesQueryTextAndReturnsOriginalSignedScores() throws Exception {
+        try (MonoforestCandidateProvide provider = provider(-1)) {
+            CandidateInfo result = provider.getCandidates(1, query("cat"), 10);
+            assertEquals(3, result.mNumFound);
+            assertEquals("d1", result.mEntries[0].mDocId);
+            assertEquals(1.5f, result.mEntries[0].mScore, 0);
+            assertEquals(-0.5f, result.mEntries[1].mScore, 0);
+            assertEquals(result.mEntries[1].mScore, result.mEntries[1].mOrigScore, 0);
+            assertEquals(1, provider.getCandidates("cat", 1).mEntries.length);
+            assertEquals("d3", provider.getCandidates("dog", 1).mEntries[0].mDocId);
+            assertEquals("Title 1", provider.getStoredDocument("d1").get("heading"));
+        }
+        try (MonoforestCandidateProvide provider = provider(1.5)) {
+            assertEquals(0, provider.getCandidates("cat", 10).mEntries.length);
+        }
+    }
+
+    @Test public void resourceManagerUsesUriConfigAndSharesThreadSafeProvider() throws Exception {
+        ObjectNode config = json.createObjectNode().put("modelPath", model.toString())
+                .put("threshold", Math.nextDown(1.5)).put("queryFieldName", "query_text")
+                .put("indexFieldName", "body").put("titleFieldName", "heading");
+        json.writeValue(root.resolve("params.json").toFile(), config);
+        ResourceManager manager = new ResourceManager(root.toString(), null, null, null);
+        CandidateProvider[] providers = manager.createCandProviders("monoforest", "index", "params.json", 3);
+        assertSame(providers[0], providers[1]);
+        assertTrue(providers[0].isThreadSafe());
+        try (MonoforestCandidateProvide provider = (MonoforestCandidateProvide)providers[0]) {
+            ExecutorService pool = Executors.newFixedThreadPool(3);
+            try {
+                List<Callable<String>> calls = new ArrayList<>();
+                for (int i = 0; i < 12; i++) {
+                    final String text = i % 2 == 0 ? "cat" : "dog";
+                    calls.add(() -> provider.getCandidates(0, query(text), 5).mEntries[0].mDocId);
+                }
+                List<Future<String>> results = pool.invokeAll(calls);
+                for (int i = 0; i < results.size(); i++) assertEquals(i % 2 == 0 ? "d1" : "d3", results.get(i).get());
+            } finally { pool.shutdownNow(); }
+        }
+    }
+
+    @Test public void validatesInputsAndClosesResources() throws Exception {
+        MonoforestCandidateProvide provider = provider(0);
+        try {
+            assertThrows(IllegalArgumentException.class, () -> provider.getCandidates(0, new DataEntryFields("q"), 10));
+            assertThrows(IllegalArgumentException.class, () -> provider.getCandidates(0, new DataEntryFields(null), 10));
+            assertThrows(IllegalArgumentException.class, () -> provider.getCandidates("cat", 0));
+        } finally { provider.close(); }
+        provider.close();
+        assertThrows(IllegalStateException.class, () -> provider.getCandidates("cat", 10));
+        assertThrows(IllegalArgumentException.class, () -> provider(Double.NaN));
+    }
+}

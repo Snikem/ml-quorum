@@ -1,0 +1,668 @@
+[
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/MonoforestCandidateProvide.java",
+    "destination": "src/main/java/monoforest/MonoforestSearch.java",
+    "source_sha256": "0fdd14ab7fa1babb1a764d5ae1a11be572de30171dca4fbf9254af255d735762",
+    "note": "Standalone API; original adapter in integrations/flexneuart-reference"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/MonoforestSearchDemo.java",
+    "destination": "src/main/java/monoforest/MonoforestSearchDemo.java",
+    "source_sha256": "1dc927c28964f1ecbecec77609f48e0e62e0d7f88c129bdf3f7084a5db225b65",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/.env",
+    "destination": ".env",
+    "source_sha256": "81aec53eb2af53d8432a64a9247bbdc14756fb2a9cf3f0b83eb6db417585b7bf",
+    "note": "Local configuration; model path added; Git ignored"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/AppConfig.java",
+    "destination": "src/main/java/monoforest/impl/AppConfig.java",
+    "source_sha256": "5e4bd4278150ec561694d9197f452ebd33e4c3611b85fbd3f7607418140870bf",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/BaseFactor.java",
+    "destination": "src/main/java/monoforest/impl/BaseFactor.java",
+    "source_sha256": "bbdb3733f98c32a3a8854672f2cf00d7ef3a9176efa7ddc28e3e4d2cf4677087",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/CatBoostInference.java",
+    "destination": "src/main/java/monoforest/impl/CatBoostInference.java",
+    "source_sha256": "d76a602c4a6bfc3bd7db817cc7293a8e62230eb669d85a081a232bc092e08af8",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DatasetOrchestrator.java",
+    "destination": "src/main/java/monoforest/impl/DatasetOrchestrator.java",
+    "source_sha256": "714324de24fb65eea2aa3bba8913d682f8a0313446a938e4baac4152d186feeb",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DatasetOrchestrator2.java",
+    "destination": "src/main/java/monoforest/impl/DatasetOrchestrator2.java",
+    "source_sha256": "4a286276f83b33f150e3cfdcf8af726039a2516052dcc3219008f29d591f5bd4",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DatasetOrchestrator3.java",
+    "destination": "src/main/java/monoforest/impl/DatasetOrchestrator3.java",
+    "source_sha256": "05238352ab506e13093f4cbe9449f572c5683fd0b645991ad2861602ec226dd7",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DocFeatureDumper.java",
+    "destination": "src/main/java/monoforest/impl/DocFeatureDumper.java",
+    "source_sha256": "ef01df2fae393e17c57b1e712eee0388f2c273ee97d12d63e714830bce5cc592",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DocFeatureInspector.java",
+    "destination": "src/main/java/monoforest/impl/DocFeatureInspector.java",
+    "source_sha256": "479a73ca40df9f00f54c94815769bb07865ea4fca3e4200ef0703a11db9309db",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DocFeatureStore.java",
+    "destination": "src/main/java/monoforest/impl/DocFeatureStore.java",
+    "source_sha256": "3f103fcf0ce47075a41b9dd320f0e45b5d817985c9e8dd6fcb81f012df911087",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DocumentMarco.java",
+    "destination": "src/main/java/monoforest/impl/DocumentMarco.java",
+    "source_sha256": "5a54657a727b93c8be0119be2f6e6b87c162d7a8f199a8c3ec71f79296f8e856",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/FactorManager.java",
+    "destination": "src/main/java/monoforest/impl/FactorManager.java",
+    "source_sha256": "d741a59df97dd254f304e45e2c6347ad3fa2c9bd3ee01fc42966fb5f434a920e",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/FeatureCombiner.java",
+    "destination": "src/main/java/monoforest/impl/FeatureCombiner.java",
+    "source_sha256": "b3ce7472c2ace3131853e61298c2530f205f56a874d76fdd533c2c7fa9789324",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/FeatureQueryNotebook.java",
+    "destination": "src/main/java/monoforest/impl/FeatureQueryNotebook.java",
+    "source_sha256": "a3404b37f1f62c1adb2e6f35e2e6ec32b2a18d4666ca93fb6b40073ceeddcf22",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/FeatureVectorBuilder.java",
+    "destination": "src/main/java/monoforest/impl/FeatureVectorBuilder.java",
+    "source_sha256": "bb4b766d8b96b237d4d08110fd6789fe923c7707a4075e08c63f79b1d646f4fb",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/FileSplitter.java",
+    "destination": "src/main/java/monoforest/impl/FileSplitter.java",
+    "source_sha256": "eeedea8ccb2bb98b1218e2d61c5b5cdc4d8d1cbdf5732b357505cacaea0b77ad",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/FullFeatureDumper.java",
+    "destination": "src/main/java/monoforest/impl/FullFeatureDumper.java",
+    "source_sha256": "5af8fde5c45545e8d2cf6200d801a8c9f06a5db12b8de4dc3c7ba3a101cae1fe",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/LuceneIndexManager.java",
+    "destination": "src/main/java/monoforest/impl/LuceneIndexManager.java",
+    "source_sha256": "4775da5fd5624b47f02ae9839e39c8ff4ce770fef65c912fdc027d9b1d4a3c42",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MakeBm25Stream.java",
+    "destination": "src/main/java/monoforest/impl/MakeBm25Stream.java",
+    "source_sha256": "ba344fb283139509e2b7a8928115f4adb4403c8c4526465013891c7f666bebb9",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MakePositiveStream.java",
+    "destination": "src/main/java/monoforest/impl/MakePositiveStream.java",
+    "source_sha256": "e1cef163290eba17d64529bef3345c276c8a1b2a5244942d27adaf214d4c485c",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MakeRandomNegativeStream.java",
+    "destination": "src/main/java/monoforest/impl/MakeRandomNegativeStream.java",
+    "source_sha256": "e51ffe1516c9da317a8e3bc56b7b953362352dd231f20db43db562637a89c26d",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MemoryBasedFactorsEnricher.java",
+    "destination": "src/main/java/monoforest/impl/MemoryBasedFactorsEnricher.java",
+    "source_sha256": "58c6bc8eb05d9a7e4bd380c8485f5dbe65eb2c87ddfda895881e51707d33183a",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MonomialCandidateQuery.java",
+    "destination": "src/main/java/monoforest/impl/MonomialCandidateQuery.java",
+    "source_sha256": "20b646c819c335981ed5f453db9b9facacd753de23fdd9e8c12bef3d923275c5",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MonomialCandidateSearch.java",
+    "destination": "src/main/java/monoforest/impl/MonomialCandidateSearch.java",
+    "source_sha256": "ed04e70da160696f2b1e0796f437b15d479f60dbcff945fa139fd1c743d5f47f",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MonomialFeatureQueries.java",
+    "destination": "src/main/java/monoforest/impl/MonomialFeatureQueries.java",
+    "source_sha256": "2baf9235caee488c1c24f44c5577184b91b790cf1844cfa3d1737515f10e4352",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MsMarcoRawReader.java",
+    "destination": "src/main/java/monoforest/impl/MsMarcoRawReader.java",
+    "source_sha256": "f0530357f3c7151b803442fb74c86311291f26b81f1b14098ff25ebd1fbdbaae",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MyTokenizer.java",
+    "destination": "src/main/java/monoforest/impl/MyTokenizer.java",
+    "source_sha256": "423e725aa0e1de2b5e5e5ee106023f18b57b745aa127affe16b236f0264c319d",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/ParallelFeatureDumper.java",
+    "destination": "src/main/java/monoforest/impl/ParallelFeatureDumper.java",
+    "source_sha256": "0b367148b0fdf2a445ba75f9d34b50d3513feec0b32d2f3883fb840f81fc180f",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/QueryFeatureDumper.java",
+    "destination": "src/main/java/monoforest/impl/QueryFeatureDumper.java",
+    "source_sha256": "8583f7f5f8399eb268c1e4404cda39e0c673674c3bd7d0670f0fbfba15ce75bc",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/QuerySplitter.java",
+    "destination": "src/main/java/monoforest/impl/QuerySplitter.java",
+    "source_sha256": "45e127446432e2f3c3354a934886ce5ba408104420ea307579cd0a4f6567c621",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/StandaloneMsMarcoIndexer.java",
+    "destination": "src/main/java/monoforest/impl/StandaloneMsMarcoIndexer.java",
+    "source_sha256": "59d4c5441f0dff36cc1559e84c36911a3de579d7baf0d7a07a0cf516a87bf3ec",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/TestBM25Standalone.java",
+    "destination": "src/main/java/monoforest/impl/TestBM25Standalone.java",
+    "source_sha256": "36745b591251e568cee2e8644e71d1f427f4e38fcac92694fd102c3af23439fd",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/TestQueriesToLucene.java",
+    "destination": "src/main/java/monoforest/impl/TestQueriesToLucene.java",
+    "source_sha256": "7c9c53284c67a2b5fd96fb611bd2761b96cea1a337aa4a1fd02249264a3e9c52",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/Top1000.java",
+    "destination": "src/main/java/monoforest/impl/Top1000.java",
+    "source_sha256": "e7808ddedb4ab195363b6196621dd05d5ef26378954dec4dcd5d645b38124ea0",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/deleteForOnce.java",
+    "destination": "src/main/java/monoforest/impl/deleteForOnce.java",
+    "source_sha256": "2589f7b3d5efdbb7187f729598a9bbcbd30dd8f8d00e49078abb479acd52bc6c",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/deleteForTwo.java",
+    "destination": "src/main/java/monoforest/impl/deleteForTwo.java",
+    "source_sha256": "238a4fe774d2366466933fac78a0ad70a8d2cc1eb1081ddd56e2daecc38a5e7b",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/DocumentFactor.java",
+    "destination": "src/main/java/monoforest/impl/document/DocumentFactor.java",
+    "source_sha256": "e74a753c84bc94c4306b45beab88547c5750c49237f31405cf623fbf0dc5bd26",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentHasUrls.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentHasUrls.java",
+    "source_sha256": "a6ce825257eb00cbbaedbaec520b2d1ae3589ca8190bbe480a2859290584b24c",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentNonDictionaryRatio.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentNonDictionaryRatio.java",
+    "source_sha256": "7be55096e5b14524ef4c70667a65991ec8a6f3a515bd995b2b7c14ebe6663daf",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentQuantityKByte.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentQuantityKByte.java",
+    "source_sha256": "b9e81e125c4b44368ec63087a49a273f02fe3f2492c4e5b115baba7592f9aac2",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentQuantityNonDictionaryWords.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentQuantityNonDictionaryWords.java",
+    "source_sha256": "27b758455bad1a5a70f06669548ca1d8311b48907834a8d395848efe5e69b40c",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentQuantityNumbers.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentQuantityNumbers.java",
+    "source_sha256": "ee6f92e75b68e5ddc24c7b624d3cf84eea4f355d781dfcb0de60b29fea0acd32",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentQuantityParagraphs.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentQuantityParagraphs.java",
+    "source_sha256": "1484e3861f9474e9913110aac2463ae811a6c96c705e7d8a13628fe08122de34",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentQuantitySpecialCharacters.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentQuantitySpecialCharacters.java",
+    "source_sha256": "fee56a552df9cc069d2f17a656f11be42fe67802a93c0038f4cac67c938b3f64",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentQuantityVowels.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentQuantityVowels.java",
+    "source_sha256": "68b39afdacb5756d541ed9f86b3970738c72b38a94812915941c09a3f3f27e3f",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/document/factors/DocumentQuantityWords.java",
+    "destination": "src/main/java/monoforest/impl/document/factors/DocumentQuantityWords.java",
+    "source_sha256": "a81b9a55fbdacf65c95f94d1cd5c9e172d74b51874d6938eef707dccda536248",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/AllFeaturesExtractor.java",
+    "destination": "src/main/java/monoforest/impl/features/AllFeaturesExtractor.java",
+    "source_sha256": "321a8e0ad6cbf55c2b69846267df3f1c5fe18d886137d6dbb257071f803d9905",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/FeatureBase.java",
+    "destination": "src/main/java/monoforest/impl/features/FeatureBase.java",
+    "source_sha256": "303f5b93b48e4465e52cb75351c3ad754a223e8c8463ec15e8a20de5fad02b9c",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/FeatureFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/FeatureFamily.java",
+    "source_sha256": "efa31885aec1963348e9b6d182a40f8908b1ea8725a3864a8798ae3a3ee770a6",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentCharactersFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentCharactersFamily.java",
+    "source_sha256": "f62c4ce1fa786331d433876d63cdb03f0e2fcde815ccc9920c02299fbae0e1e8",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentFeatureFamilies.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentFeatureFamilies.java",
+    "source_sha256": "eeaf508f31d77100e290bf28f91a8738b5ccd4b94be75bbd602dc6fd37742e67",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentFeatureFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentFeatureFamily.java",
+    "source_sha256": "d356e11cb931bb847432ee385bec8af7c60325d0e0367cbb0ba4b0cf09130e89",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentNumbersFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentNumbersFamily.java",
+    "source_sha256": "903072bd3f4222da4869173bbebe765153d706d8de040642c9361bed8c98a041",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentParagraphsFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentParagraphsFamily.java",
+    "source_sha256": "a7bba9b19d3e49c0944fea08b09c5720929f92f601f510b1225d2ef0c3a4d4f7",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentSizeFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentSizeFamily.java",
+    "source_sha256": "2aedc8a5a9d12922fee0ecc3697504d57c36cfe6fe999375183f3b4995488709",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentUrlsFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentUrlsFamily.java",
+    "source_sha256": "e60f8f7bfcb5568823c04c19a6a29b02c0785d748563587d5d0c7a9f69047e6a",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/DocumentWordsFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/documentFeatures/DocumentWordsFamily.java",
+    "source_sha256": "17bbf582b97c211ad2cd2269a0c1a9416bbd19382b6e373172d34e7368ae4133",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/BM25Family.java",
+    "destination": "src/main/java/monoforest/impl/features/jointFeatures/BM25Family.java",
+    "source_sha256": "3e311e3149d8d655386d950e6a411a081f48a4dc49ce3c70fb128bd7c15e35fb",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/BM25TopScoresFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/jointFeatures/BM25TopScoresFamily.java",
+    "source_sha256": "123044cb5ec9335c35033bebb949d1cd7fabb6f9130556168af70789c39c399d",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/ExactMatchFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/jointFeatures/ExactMatchFamily.java",
+    "source_sha256": "4354ede1056247cbaa9f2a0528b5fb70d0081a9e9b9ed07ffc2f7a739968acb4",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/TFIDFFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/jointFeatures/TFIDFFamily.java",
+    "source_sha256": "511062569dfeb8ef1116f5a683deac8651c500cb2657cfc63341bdeb195df449",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/TitleExactMatchFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/jointFeatures/TitleExactMatchFamily.java",
+    "source_sha256": "cc7b0bd3cb2f1124e32284ba70b7660697378918ae6b2651666fbe06a353ce35",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/UnorderedWindowFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/jointFeatures/UnorderedWindowFamily.java",
+    "source_sha256": "1baf5eeae23ae5e6458a3165ac53dd50d45b1f2083efd012f51d492c7f87317a",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/QueryCharactersFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/queryFeatures/QueryCharactersFamily.java",
+    "source_sha256": "4dedf70c0a5a2ce6dbdff19dc38d111aa2f9b14dc7b8d500fefed3bea913bd34",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/QueryFeatureFamilies.java",
+    "destination": "src/main/java/monoforest/impl/features/queryFeatures/QueryFeatureFamilies.java",
+    "source_sha256": "10ee4f6c197868cf36a1f5d18f44e64a197ac39d0652a87d3b2fe0eb84990b50",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/QueryFeatureFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/queryFeatures/QueryFeatureFamily.java",
+    "source_sha256": "08e77d30c0838dc3d6a07f12f62777e7f8dcc7053c3fa07f167dd3ef16eb8f77",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/QueryFrequencyFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/queryFeatures/QueryFrequencyFamily.java",
+    "source_sha256": "79a15f0a236b72a609e6264e435f515f73760af0534c7bcee85516fe51e66ce8",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/QueryNounsFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/queryFeatures/QueryNounsFamily.java",
+    "source_sha256": "a88b49fd429ae629e82a8e3aa89a9d823277ce7d4705354138b380041a65efa5",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/QueryNumbersFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/queryFeatures/QueryNumbersFamily.java",
+    "source_sha256": "060503714525d4a7a3dd6607a4bbc39919bc8f2739ba2056c896ed8930924534",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/QueryWordsFamily.java",
+    "destination": "src/main/java/monoforest/impl/features/queryFeatures/QueryWordsFamily.java",
+    "source_sha256": "e1b73f4dae9c116b094bb600f19a20773b99ff574006297c5e7f6e473eeed4a3",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/JointFactor.java",
+    "destination": "src/main/java/monoforest/impl/joint/JointFactor.java",
+    "source_sha256": "1ce655827909eb45d5b204358c9f49ff8beae2e27810f8bebc50d2eac9476731",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointBM25AndTFIDF.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointBM25AndTFIDF.java",
+    "source_sha256": "11ee22c3ed67c10ffda92c23addedc6b11bbc6e0cef9b46a3cf9942678356bce",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointBigramTrigram.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointBigramTrigram.java",
+    "source_sha256": "763b80346837f682290a4d9eea01baef79caa68ed26f9919477b7a7b6500fefc",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointExactMatchCount.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointExactMatchCount.java",
+    "source_sha256": "25900a9bb45ed68593c9263a0c4f9a2891c5408b915b0b07ad5e933378ca1637",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointQueryTfSum.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointQueryTfSum.java",
+    "source_sha256": "8c8dca574b3add9225965f1f1393d1bb2714afd05cf3827f18ca8b6c4190ad4f",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointRankBM25.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointRankBM25.java",
+    "source_sha256": "9c731766d25b0a9fa9666e77d43d29f376a58ba237b0b506a88208e0e079f19f",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointSmarterBigramTrigram.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointSmarterBigramTrigram.java",
+    "source_sha256": "3517f0891cfb0a1649d83fe7879042139273fd34a5cc3f379b0faad341b40767",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointTFIDF.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointTFIDF.java",
+    "source_sha256": "278b4566d61400088d359b67a8f5c2781e8a8e66a3c837de79da2549d7d79cfe",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointTitleMatchCount.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointTitleMatchCount.java",
+    "source_sha256": "f9e0b9fe7119d07130388522d8873b8084c5bff1e34e76ec8c02190bab3d671b",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/joint/factors/JointUnorderedWindow.java",
+    "destination": "src/main/java/monoforest/impl/joint/factors/JointUnorderedWindow.java",
+    "source_sha256": "a9a405dcd5ccc0c75d00b8c8de34a72775fb4ae65e0ae1de2dc2b486f061df65",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/QueryFactor.java",
+    "destination": "src/main/java/monoforest/impl/query/QueryFactor.java",
+    "source_sha256": "2b3d8a67dc0de3cef3a8b6cd1ede62c855479c17aecec8b5e5ce06b741e4dcd0",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryFrequencyWords.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryFrequencyWords.java",
+    "source_sha256": "a8ea5ebc28d8667675ed4fcd895879c5a71c55605095b763aee4857713848e65",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryQuantityConsonants.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryQuantityConsonants.java",
+    "source_sha256": "0da544c3ca4c0959fa771765993a625f75ec517df255aeb27b384d86100a6010",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryQuantityNonDictionaryWords.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryQuantityNonDictionaryWords.java",
+    "source_sha256": "1e24c5989a417dc05eb91b69716e6d64e208ed0d3bc92baa7d981ad7cd640b6a",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryQuantityNouns.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryQuantityNouns.java",
+    "source_sha256": "d7068ea7289995b8af8209d4e51b24144dce0154f26a280c947ebe024c3ee62a",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryQuantityNumbers.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryQuantityNumbers.java",
+    "source_sha256": "846910c1e0ad46af3eed20fe83bf8a329b513fbdd5802a20e3bd6f88116f67c8",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryQuantitySpecialCharacters.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryQuantitySpecialCharacters.java",
+    "source_sha256": "594e7e8326474b733e4fbe1169a640665ba8714bc6384c9080e4bfad2e8135fb",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryQuantityVowels.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryQuantityVowels.java",
+    "source_sha256": "4e0eedb79a47878f4f75275a79c0519a71c7bd3dc9cb62d09a18000b78552603",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/query/factors/QueryQuantityWords.java",
+    "destination": "src/main/java/monoforest/impl/query/factors/QueryQuantityWords.java",
+    "source_sha256": "81fe8ef5fb07266f81105a4f11c889168ec0e9581291f5796b8aa4a08e847c54",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/testSearch.java",
+    "destination": "src/main/java/monoforest/impl/testSearch.java",
+    "source_sha256": "63bb818ac7d70724f9296d6111271ee1fd1cbe994f5d5a64de83d8d75be302d8",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/MonoforestCandidateProvideTest.java",
+    "destination": "src/test/java/monoforest/MonoforestSearchTest.java",
+    "source_sha256": "7bb1e2e4aeb4f822af99cc0ac5fe37a33cc1e5dfce9c7687f0cbdf6b8b4cbe9b",
+    "note": "Standalone service tests; original integration test retained for reference"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/DatasetOrchestrator3Test.java",
+    "destination": "src/test/java/monoforest/impl/DatasetOrchestrator3Test.java",
+    "source_sha256": "a312ede9b695f51ec651aaf5c03334f081ad8ccfdfd7fc15a33b882f653e5430",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/MonomialCandidateSearchTest.java",
+    "destination": "src/test/java/monoforest/impl/MonomialCandidateSearchTest.java",
+    "source_sha256": "7ece247b8fda08b073392430da47b40ec88072cc62f10a42c32a0861871e0bab",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/AvailableIndexTest.java",
+    "destination": "src/test/java/monoforest/impl/features/AvailableIndexTest.java",
+    "source_sha256": "7c80727a1e838e4184e1284a18a56900a83c540cfb2bbd8bf36138398d688da6",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/README.md",
+    "destination": "src/test/java/monoforest/impl/features/README.md",
+    "source_sha256": "331caa68d41d658d4b43719d398ab112dfc89202766dd020231e6d52816c003b",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/tests/DocumentFeaturesIT.java",
+    "destination": "src/test/java/monoforest/impl/features/documentFeatures/tests/DocumentFeaturesIT.java",
+    "source_sha256": "b7294952bf68c1d667d803b0d4a9185df7f4ce6913e3b4dfa5a1c5e7d7340380",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/documentFeatures/tests/DocumentFeaturesTest.java",
+    "destination": "src/test/java/monoforest/impl/features/documentFeatures/tests/DocumentFeaturesTest.java",
+    "source_sha256": "434103a8b5a8079e7d50d90c35ee0f5ed85e4813a1b1887176bd944a66da639c",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/BM25FamilyIT.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/BM25FamilyIT.java",
+    "source_sha256": "35624d21fd11fd32499a0919e6a8d05039eb584e20e80bf627fa18f2bc09c9f6",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/BM25FamilyTest.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/BM25FamilyTest.java",
+    "source_sha256": "bfc70a7b954cd6d87ce9247ad10374d8bb0431c3e5ce30d94bcc339efc5a2242",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/BM25TopScoresFamilyIT.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/BM25TopScoresFamilyIT.java",
+    "source_sha256": "1d554b41686e2a511b1970d928b6f4e3ce3cd97e59d47f2d369123c1fd2f5637",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/BM25TopScoresFamilyTest.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/BM25TopScoresFamilyTest.java",
+    "source_sha256": "b896ef935e4c1e4e4a8c476e9df3f52556f5172673730aad344d228bddc2d937",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/ExactMatchFamilyIT.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/ExactMatchFamilyIT.java",
+    "source_sha256": "b753c66eba84011a58622b5a8a37e29358f932de0dbcc193ee8c12467861357d",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/TFIDFFamilyIT.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/TFIDFFamilyIT.java",
+    "source_sha256": "49715069231a6fffb532d73b5eefbef5aaa0c679f000a1aa938ddb2937dc5e91",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/TFIDFFamilyTest.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/TFIDFFamilyTest.java",
+    "source_sha256": "962adca87d7726b967812cff7198492cbc03ff7fd9b00630f64505996741ea49",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/TitleExactMatchFamilyIT.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/TitleExactMatchFamilyIT.java",
+    "source_sha256": "4d099bb4d29495288be2d23011335f96fc125895b12c1697e69241a44cbd50b7",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/jointFeatures/tests/UnorderedWindowFamilyIT.java",
+    "destination": "src/test/java/monoforest/impl/features/jointFeatures/tests/UnorderedWindowFamilyIT.java",
+    "source_sha256": "3ad9957283cfcfe9c54d73212fd032cf11d8f8e71e1703250705cd06d6d508e1",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/test/java/edu/cmu/lti/oaqa/flexneuart/cand_providers/monoforest_candidate_provider/impl/features/queryFeatures/tests/QueryFeaturesTest.java",
+    "destination": "src/test/java/monoforest/impl/features/queryFeatures/tests/QueryFeaturesTest.java",
+    "source_sha256": "658220100ba2777ea28d230a49f19a4e9bb86e6e1c70cb7df456f9a2a35ba442",
+    "note": "Migrated; package renamed and framework imports removed as needed"
+  },
+  {
+    "source": "java/src/main/resources/en-pos-maxent.bin",
+    "destination": "src/main/resources/en-pos-maxent.bin",
+    "source_sha256": "645a094f45a866687a617385233fd23ae8b0f5fa8b1b76996781a50c17bdcf3d",
+    "note": "Copied unchanged"
+  },
+  {
+    "source": "java/src/main/resources/words_alpha.txt",
+    "destination": "src/main/resources/words_alpha.txt",
+    "source_sha256": "3ed0c94610d8bcf7c11bbb49c56aa49c7234d32b66824df91f554169e572da48",
+    "note": "Copied unchanged"
+  }
+]

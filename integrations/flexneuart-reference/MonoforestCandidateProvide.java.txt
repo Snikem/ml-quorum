@@ -1,0 +1,159 @@
+package edu.cmu.lti.oaqa.flexneuart.cand_providers.monoforest_candidate_provider;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.CandidateEntry;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.CandidateInfo;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.CandidateProvider;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.monoforest_candidate_provider.impl.AppConfig;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.monoforest_candidate_provider.impl.MonomialCandidateSearch;
+import edu.cmu.lti.oaqa.flexneuart.letor.CommonParams;
+import edu.cmu.lti.oaqa.flexneuart.resources.RestrictedJsonConfig;
+import edu.cmu.lti.oaqa.flexneuart.utils.Const;
+import edu.cmu.lti.oaqa.flexneuart.utils.DataEntryFields;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+
+/** FlexNeuART candidate provider: trained monomial score > threshold, at most maxQty hits.
+ * The model and index are loaded once. Each request has its own feature/query state.
+ * Close only after all concurrent searches have completed.
+ */
+public class MonoforestCandidateProvide extends CandidateProvider implements AutoCloseable {
+    public static final String MODEL_PATH_PARAM = "modelPath";
+    public static final String THRESHOLD_PARAM = "threshold";
+    public static final String TITLE_FIELD_PARAM = "titleFieldName";
+    public static final String DEFAULT_MODEL_PATH = "/Users/snikem/proga/FactorFactory/linear_monomials.json";
+    public static final double DEFAULT_THRESHOLD = 0.0;
+
+    private final String queryFieldName;
+    private final String indexFieldName;
+    private final String titleFieldName;
+    private final double threshold;
+    private final MonomialCandidateSearch engine;
+    private final Directory directory;
+    private final DirectoryReader reader;
+    private final IndexSearcher searcher;
+    private volatile boolean closed;
+
+    /** indexDir is the Lucene directory supplied as cand_prov_uri; null/empty uses AppConfig. */
+    public MonoforestCandidateProvide(String indexDir, RestrictedJsonConfig conf) throws Exception {
+        this(indexDir, setting(conf, MODEL_PATH_PARAM, DEFAULT_MODEL_PATH),
+                Double.parseDouble(setting(conf, THRESHOLD_PARAM, Double.toString(DEFAULT_THRESHOLD))),
+                setting(conf, CommonParams.QUERY_FIELD_NAME, Const.DEFAULT_QUERY_TEXT_FIELD_NAME),
+                setting(conf, CommonParams.INDEX_FIELD_NAME, AppConfig.getTextField()),
+                setting(conf, TITLE_FIELD_PARAM, AppConfig.getTitleField()));
+    }
+
+    /** Direct Java configuration, useful for experiments without a JSON config file. */
+    public MonoforestCandidateProvide(String indexDir, String modelPath, double threshold,
+                                     String queryFieldName, String indexFieldName, String titleFieldName) throws IOException {
+        if (!Double.isFinite(threshold)) throw new IllegalArgumentException("threshold must be finite");
+        this.threshold = threshold;
+        this.queryFieldName = requireName(queryFieldName);
+        this.indexFieldName = requireName(indexFieldName);
+        this.titleFieldName = requireName(titleFieldName);
+        Path model = Paths.get(requireName(modelPath));
+        if (!Files.isRegularFile(model)) {
+            throw new IOException("Monomial JSON model not found: " + model
+                    + ". Run export_monomial_model(linear_monom_model, path) in model.ipynb first.");
+        }
+        engine = new MonomialCandidateSearch(model, indexFieldName, titleFieldName);
+        Path index = Paths.get(indexDir == null || indexDir.isEmpty() ? AppConfig.getIndexDir() : indexDir);
+        if (!Files.isDirectory(index)) throw new IOException("Lucene index directory not found: " + index);
+        Directory openedDirectory = FSDirectory.open(index);
+        DirectoryReader openedReader;
+        try {
+            openedReader = DirectoryReader.open(openedDirectory);
+        } catch (IOException | RuntimeException error) {
+            try { openedDirectory.close(); } catch (IOException closeError) { error.addSuppressed(closeError); }
+            throw error;
+        }
+        directory = openedDirectory;
+        reader = openedReader;
+        searcher = new IndexSearcher(reader);
+    }
+
+    private static String setting(RestrictedJsonConfig conf, String key, String fallback) throws Exception {
+        return conf == null ? fallback : conf.getParam(key, fallback);
+    }
+    private static String requireName(String value) {
+        if (value == null || value.trim().isEmpty()) throw new IllegalArgumentException("Path/field name must not be empty");
+        return value;
+    }
+    private void ensureOpen() { if (closed) throw new IllegalStateException("Provider is closed"); }
+    @Override public String getName() { return getClass().getName(); }
+    @Override public boolean isThreadSafe() { return true; }
+
+    @Override
+    public CandidateInfo getCandidates(int queryNum, DataEntryFields queryFields, int maxQty) throws IOException {
+        Objects.requireNonNull(queryFields, "queryFields");
+        if (queryFields.mEntryId == null) throw new IllegalArgumentException("Query id is undefined for query #" + queryNum);
+        String text = queryFields.getString(queryFieldName);
+        if (text == null) throw new IllegalArgumentException("Missing query field: " + queryFieldName);
+        // Preserve the original string: punctuation/whitespace affect query features.
+        return getCandidates(text, maxQty);
+    }
+
+    /** Convenience overload for an interactive Java experiment. */
+    public CandidateInfo getCandidates(String queryText, int maxQty) throws IOException {
+        ObjectNode result = search(queryText, maxQty);
+        CandidateEntry[] entries = new CandidateEntry[result.path("returned").asInt()];
+        int index = 0;
+        for (JsonNode hit : result.path("candidates")) {
+            float rawScore = (float)hit.path("score").asDouble();
+            if (!Float.isFinite(rawScore)) throw new IOException("Model score exceeds CandidateEntry float range");
+            entries[index++] = new CandidateEntry(hit.path("doc_id").asText(), rawScore);
+        }
+        Arrays.sort(entries);
+        // Like LuceneCandidateProvider, mNumFound may be a lower bound for large hit sets.
+        // search() additionally exposes total_hits_relation for interactive inspection.
+        return new CandidateInfo(result.path("total_hits").asLong(), entries);
+    }
+
+    /** Detailed result includes double raw scores, probabilities and the total-hit relation. */
+    public ObjectNode search(String queryText, int maxQty) throws IOException {
+        ensureOpen();
+        Objects.requireNonNull(queryText, "queryText");
+        if (maxQty <= 0) throw new IllegalArgumentException("maxQty must be positive");
+        return engine.search(searcher, queryText, threshold, maxQty);
+    }
+
+    /** Optional document preview for the manual test program. */
+    public Document getStoredDocument(String docId) throws IOException {
+        ensureOpen();
+        TopDocs hits = searcher.search(new TermQuery(new Term("id", docId)), 1);
+        if (hits.scoreDocs.length == 0) throw new IOException("Document id not found: " + docId);
+        return searcher.doc(hits.scoreDocs[0].doc, new HashSet<>(Arrays.asList("id", indexFieldName, titleFieldName)));
+    }
+    public String getIndexFieldName() { return indexFieldName; }
+    public String getTitleFieldName() { return titleFieldName; }
+
+    /** Legacy rank helper; 3000 remains the historical not-found sentinel. */
+    public int testSearch(String queryText, String queryId, String relevantId, int maxQty) {
+        try {
+            CandidateEntry[] entries = getCandidates(queryText, maxQty).mEntries;
+            for (int i = 0; i < entries.length; i++) if (entries[i].mDocId.equals(relevantId)) return i + 1;
+            return 3000;
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    @Override public synchronized void close() throws IOException {
+        if (closed) return;
+        closed = true;
+        try { reader.close(); } finally { directory.close(); }
+    }
+
+    public static void main(String[] args) throws Exception { MonoforestSearchDemo.main(args); }
+}

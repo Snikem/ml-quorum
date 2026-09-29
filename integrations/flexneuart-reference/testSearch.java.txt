@@ -1,0 +1,184 @@
+package edu.cmu.lti.oaqa.flexneuart.cand_providers.monoforest_candidate_provider.impl;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.CandidateEntry;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.CandidateInfo;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.LuceneCandidateProvider;
+import edu.cmu.lti.oaqa.flexneuart.cand_providers.monoforest_candidate_provider.MonoforestCandidateProvide;
+import edu.cmu.lti.oaqa.flexneuart.letor.CommonParams;
+import edu.cmu.lti.oaqa.flexneuart.resources.RestrictedJsonConfig;
+import edu.cmu.lti.oaqa.flexneuart.utils.Const;
+import edu.cmu.lti.oaqa.flexneuart.utils.DataEntryFields;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class testSearch {
+
+    // 1. Создаем класс (POJO) для описания структуры нашего JSON
+    public static class MergedRecord {
+        // Аннотации @JsonProperty нужны, если названия полей в JSON
+        // не соответствуют стандартному стилю Java (camelCase)
+        @JsonProperty("DOCNO")
+        public String docNo;
+
+        @JsonProperty("text_raw")
+        public String textRaw;
+
+        @JsonProperty("relevantIdDoc")
+        public List<String> relevantIdDoc;
+
+        @Override
+        public String toString() {
+            return String.format("ID: %s | Текст: %s | Документы: %s", docNo, textRaw, relevantIdDoc);
+        }
+    }
+
+    public static int testSearchMonoforest(String queryText, String queryId, String relevantId, int maxQty, MonoforestCandidateProvide provider) {
+        try {
+
+
+            CandidateInfo info = provider.getCandidates(queryText, maxQty);
+
+            if (info.mEntries.length == 0) {
+                System.out.println("Документы выше порога не найдены.");
+            } else {
+                for (int i = 0; i < info.mEntries.length; i++) {
+                    CandidateEntry entry = info.mEntries[i];
+                    if( entry.mDocId.equals(relevantId) ){
+                        return i + 1;
+                    }
+                }
+            }
+
+           // System.out.println("\nВсего обработано документов в файле: " + info.mNumFound);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 3000;
+    }
+
+    public static int testSearchLucene(String queryText, String queryId, String relevantId, int maxQty, LuceneCandidateProvider provider, String fieldName) {
+        try {
+
+
+            java.lang.reflect.Method setStringMethod = DataEntryFields.class.getDeclaredMethod("setString", String.class, String.class);
+            setStringMethod.setAccessible(true); // Снимаем ограничение доступа
+
+            DataEntryFields queryFields = new DataEntryFields(queryId);
+            setStringMethod.invoke(queryFields, fieldName, queryText);
+
+
+            // 5. Запрашиваем кандидатов (например, просим топ-100)
+            CandidateInfo info = provider.getCandidates(0, queryFields, maxQty);
+
+            // 6. Выводим результаты (покажем только топ-10)
+            //System.out.println("\n--- Топ 10 найденных документов ---");
+            if (info.mEntries.length == 0) {
+                System.out.println("Документы не найдены. Проверь текст запроса или корректность индекса Lucene.");
+            } else {
+                int limit = Math.min(maxQty, info.mEntries.length);
+                for (int i = 0; i < limit; i++) {
+                    CandidateEntry entry = info.mEntries[i];
+                    if( entry.mDocId.equals(relevantId) ){
+                        return i + 1;
+                    }
+                }
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 3000;
+    }
+
+    public static void main(String[] args) throws Exception {
+        // Укажите путь к вашему итоговому файлу
+        String filePath = "/Volumes/Ex_Volume/msmarcoProcces/input_data/dev/MergedData.jsonl";
+
+        MonoforestCandidateProvide providerMo = new MonoforestCandidateProvide(AppConfig.getIndexDir(), null);
+
+        // ObjectMapper — главный класс библиотеки Jackson для работы с JSON
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayList<String> res = new ArrayList<>();
+        int count = 0;
+
+        // 1. Путь к индексу Lucene (из твоего файла bm25.json)
+        String indexDirName = "/Volumes/Ex_Volume/msmarcoProcces/lucene_index";
+
+        // Путь к файлу с параметрами BM25.
+        // Замени на абсолютный путь к твоему bm25_params.json
+        String configPath = "/Volumes/Ex_Volume/msmarcoProcces/exper_desc.best/bm25_params.json";
+
+        // 2. Инициализируем конфиг
+        File configFile = new File(configPath);
+        RestrictedJsonConfig addConf = null;
+        if (configFile.exists()) {
+            addConf = RestrictedJsonConfig.readConfig("bm25_config",configPath);
+        } else {
+            System.out.println("Файл конфигурации не найден, будут использованы параметры по умолчанию.");
+        }
+
+        // 3. Создаем провайдер
+        LuceneCandidateProvider provider = new LuceneCandidateProvider(indexDirName, addConf);
+
+
+        // ВАЖНО: имя поля должно совпадать с query_field_name в bm25_params.json.
+        // У тебя там указано "text_unlemm".
+        String fieldName = (addConf != null)
+                ? addConf.getParam(CommonParams.QUERY_FIELD_NAME, Const.DEFAULT_QUERY_TEXT_FIELD_NAME)
+                : Const.DEFAULT_QUERY_TEXT_FIELD_NAME;
+
+
+
+
+
+        // 2. Читаем файл построчно через BufferedReader (идеально для больших файлов)
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+
+            // Цикл бежит по каждой строке файла, пока они не закончатся
+            while ((line = br.readLine()) != null) {
+                count++;
+                if (count > 500) {
+                    break;
+                }
+                // Если строка пустая, пропускаем
+                if (line.trim().isEmpty()) continue;
+
+                // 3. Превращаем JSON-строку в готовый Java-объект
+                MergedRecord record = mapper.readValue(line, MergedRecord.class);
+
+                // --- ЗДЕСЬ ВАША ЛОГИКА ---
+                // Теперь вы можете обращаться к типизированным полям:
+                // record.docNo
+                // record.textRaw
+                // record.relevantIdDoc
+                // Для примера просто выводим в консоль
+                //System.out.println(record.toString());
+                for (String docId : record.relevantIdDoc) {
+                    int luceenRank = testSearch.testSearchLucene(record.textRaw, record.docNo, docId, 5000, provider, fieldName);
+                    int monRank = testSearch.testSearchMonoforest(record.textRaw, record.docNo, docId, 5000, providerMo);
+                    String temp = "queryString :" + record.docNo + "   " + "queryText : " + record.textRaw + "  docNo: " + record.relevantIdDoc
+                    + "    место люсене - " + luceenRank + "    monof  - " + monRank + "   люсене выиграл на " + (monRank - luceenRank);
+                    res.add(temp);
+                }
+
+            }
+        } catch (IOException e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+        }
+
+
+        for(String t : res) {
+            System.out.println(t);
+        }
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "modelPath": "/Users/snikem/proga/FactorFactory/linear_monomials.json",
+  "threshold": 0.0,
+  "queryFieldName": "text",
+  "indexFieldName": "text",
+  "titleFieldName": "title"
+}
