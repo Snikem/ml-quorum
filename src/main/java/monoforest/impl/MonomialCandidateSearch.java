@@ -139,6 +139,48 @@ public final class MonomialCandidateSearch {
         return result;
     }
 
+    /** First N documents satisfying the SAME strict model threshold, without ranking or explain. */
+    public ObjectNode firstMatches(IndexSearcher searcher, String queryText, double threshold, int limit)
+            throws IOException {
+        if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
+        long start = System.nanoTime();
+        MonomialCandidateQuery query = buildQuery(searcher.getIndexReader(), queryText, threshold);
+        long buildNanos = System.nanoTime() - start;
+        return executeFirstMatches(searcher, queryText, threshold, limit, query, buildNanos);
+    }
+
+    public ObjectNode firstMatchesPrepared(IndexSearcher searcher, String queryText, double threshold,
+                                            int limit, MonomialCandidateQuery query) throws IOException {
+        return executeFirstMatches(searcher, queryText, threshold, limit, query, 0);
+    }
+
+    private ObjectNode executeFirstMatches(IndexSearcher searcher, String queryText, double threshold,
+                                           int limit, MonomialCandidateQuery query, long buildNanos) throws IOException {
+        long start = System.nanoTime();
+        FirstMatches.Result hits = FirstMatches.search(searcher, query, limit);
+        long searchNanos = System.nanoTime() - start;
+        ObjectNode result = JSON.createObjectNode();
+        result.put("query", queryText).put("threshold", threshold).put("comparison", "GT")
+                .put("retrieval_mode", "first_matches").put("order", "lucene_doc_id")
+                .put("limit", limit).put("limit_reached", hits.limitReached)
+                .put("total_hits", hits.docIds.size())
+                .put("total_hits_relation", hits.limitReached ? "GREATER_THAN_OR_EQUAL_TO" : "EQUAL_TO")
+                .put("returned", hits.docIds.size()).put("lucene_query", query.toString());
+        ArrayNode candidates = result.putArray("candidates");
+        long idNanos = 0;
+        for (int doc : hits.docIds) {
+            long idStart = System.nanoTime();
+            String id = searcher.doc(doc, Collections.singleton("id")).get("id");
+            idNanos += System.nanoTime() - idStart;
+            if (id == null) throw new IllegalStateException("Candidate lacks stored id field");
+            candidates.addObject().put("doc_id", id).put("lucene_doc_id", doc);
+        }
+        result.putObject("timings_ms").put("build_query_ms", buildNanos / 1e6)
+                .put("lucene_search_ms", searchNanos / 1e6).put("explain_ms", 0)
+                .put("fetch_ids_ms", idNanos / 1e6);
+        return result;
+    }
+
     public static void main(String[] args) throws Exception {
         if (args.length < 5 || args.length > 7) {
             throw new IllegalArgumentException("Usage: model.json indexDir query threshold topK [textField] [titleField]");

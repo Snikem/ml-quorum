@@ -77,6 +77,13 @@ public class MonoforestSearch implements AutoCloseable {
         return engine.search(searcher, queryText, threshold, maxQty);
     }
 
+    /** First N threshold matches in index order. No ranking, explanations or exact total count. */
+    public ObjectNode firstMatches(String queryText, int limit) throws IOException {
+        ensureOpen();
+        Objects.requireNonNull(queryText, "queryText");
+        return engine.firstMatches(searcher, queryText, threshold, limit);
+    }
+
     /** Prepare once for repeated searches of the same text on this open index. */
     public PreparedSearch prepareQuery(String queryText) throws IOException {
         ensureOpen();
@@ -91,6 +98,10 @@ public class MonoforestSearch implements AutoCloseable {
             this.text = text;
             this.query = query;
         }
+        public ObjectNode firstMatches(int limit) throws IOException {
+            ensureOpen();
+            return engine.firstMatchesPrepared(searcher, text, threshold, limit, query);
+        }
         public ObjectNode search(int maxQty) throws IOException {
             ensureOpen();
             return engine.searchPrepared(searcher, text, threshold, maxQty, query);
@@ -103,6 +114,11 @@ public class MonoforestSearch implements AutoCloseable {
         TopDocs hits = searcher.search(new TermQuery(new Term("id", docId)), 1);
         if (hits.scoreDocs.length == 0) throw new IOException("Document id not found: " + docId);
         return searcher.doc(hits.scoreDocs[0].doc, new HashSet<>(Arrays.asList("id", indexFieldName, titleFieldName)));
+    }
+    /** Internal Lucene doc ID from this same open index; no secondary search by external ID. */
+    public Document getStoredDocument(int luceneDocId) throws IOException {
+        ensureOpen();
+        return searcher.doc(luceneDocId, new HashSet<>(Arrays.asList("id", indexFieldName, titleFieldName)));
     }
     public String getIndexFieldName() { return indexFieldName; }
     public String getTitleFieldName() { return titleFieldName; }

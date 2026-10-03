@@ -18,7 +18,8 @@ public final class MonoforestRunner {
         if (args.length == 0 || Arrays.asList(args).contains("--help")) {
             System.out.println("Usage: java -Xmx4g -jar monoforest-0.1.0-SNAPSHOT-runner.jar\n"
                     + "  --index DIR --model FILE --query TEXT [--ram-root /dev/shm]\n"
-                    + "  [--threshold 3] [--top-k 10] [--text-field text] [--title-field title] [--reserve-gib 12] [--repeat 1] [--hot false]\n"
+                    + "  [--threshold 3] [--limit 10 | --top-k N] [--text-field text] [--title-field title] [--reserve-gib 12] [--repeat 1] [--hot false]\n"
+                    + "Default: first N strict threshold matches without ranking; --top-k explicitly enables ranking.\n"
                     + "Query-frequency TSV is bundled. Optional override before -jar: -Dmonoforest.queryFrequencyTsv=/path/to/queries.tsv\n"
                     + "Runs --repeat searches on one open index. --hot true prepares once and adds one reported warmup. stdout: JSON documents and timings. stderr: loading progress.\n"
                     + "search_ms includes search and fetching document texts; excludes loading and printing JSON.\n"
@@ -48,7 +49,7 @@ public final class MonoforestRunner {
     }
 
     static ObjectNode run(String[] args) throws Exception {
-        Set<String> allowed = Set.of("--index", "--model", "--query", "--ram-root", "--reserve-gib", "--threshold", "--top-k", "--text-field", "--title-field", "--repeat", "--hot");
+        Set<String> allowed = Set.of("--index", "--model", "--query", "--ram-root", "--reserve-gib", "--threshold", "--top-k", "--text-field", "--title-field", "--repeat", "--hot", "--limit");
         Map<String,String> options = new HashMap<>();
         for (int i = 0; i < args.length; i += 2) {
             if (!allowed.contains(args[i]) || i + 1 == args.length || options.put(args[i], args[i+1]) != null)
@@ -60,7 +61,10 @@ public final class MonoforestRunner {
         Path model = Path.of(options.get("--model")).toAbsolutePath();
         if (!Files.isDirectory(source) || !Files.isRegularFile(model)) throw new IOException("Index directory or model file does not exist");
         double threshold = Double.parseDouble(options.getOrDefault("--threshold", "3"));
-        int topK = Integer.parseInt(options.getOrDefault("--top-k", "10"));
+        if (options.containsKey("--limit") && options.containsKey("--top-k"))
+            throw new IllegalArgumentException("Use --limit for first matches OR --top-k for ranking, not both");
+        boolean ranked = options.containsKey("--top-k");
+        int topK = Integer.parseInt(options.getOrDefault("--limit", options.getOrDefault("--top-k", "10")));
         String hotOption = options.getOrDefault("--hot", "false");
         if (!Set.of("true", "false").contains(hotOption)) throw new IllegalArgumentException("--hot must be true or false");
         boolean hot = Boolean.parseBoolean(hotOption);
@@ -87,6 +91,7 @@ public final class MonoforestRunner {
                     options.getOrDefault("--text-field", "text"), options.getOrDefault("--title-field", "title"))) {
                 double openMillis = (System.nanoTime()-openStart)/1e6;
                 ObjectNode response = JSON.createObjectNode().put("mode", ram == null ? "filesystem" : "tmpfs")
+                        .put("retrieval_mode", ranked ? "ranked" : "first_matches")
                         .put("source_index", source.toString()).put("active_index", index.toString())
                         .put("copy_to_ram_ms", ram == null ? 0 : ram.copyMillis)
                         .put("open_model_and_index_ms", openMillis)
@@ -102,14 +107,14 @@ public final class MonoforestRunner {
                     prepared = search.prepareQuery(options.get("--query"));
                     response.put("prepare_query_ms", (System.nanoTime() - prepareStart) / 1e6);
                     System.err.println("Warming up: one full query, reported separately...");
-                    ObjectNode warmup = runQuery(search, prepared, options.get("--query"), topK, 0);
+                    ObjectNode warmup = runQuery(search, prepared, options.get("--query"), topK, ranked, 0);
                     response.set("warmup", warmup);
                     printTimings("Warmup", warmup);
                 }
                 com.fasterxml.jackson.databind.node.ArrayNode runs = response.putArray("runs");
                 for (int run = 1; run <= repeat; run++) {
                     System.err.printf(Locale.ROOT, "Running measured query %d/%d...%n", run, repeat);
-                    ObjectNode entry = runQuery(search, prepared, options.get("--query"), topK, run);
+                    ObjectNode entry = runQuery(search, prepared, options.get("--query"), topK, ranked, run);
                     runs.add(entry);
                     // Keep the original fields as aliases for the FIRST measured run.
                     if (run == 1) {
@@ -126,12 +131,16 @@ public final class MonoforestRunner {
         }
     }
     private static ObjectNode runQuery(MonoforestSearch search, MonoforestSearch.PreparedSearch prepared,
-                                       String text, int topK, int ordinal) throws IOException {
+                                       String text, int topK, boolean ranked, int ordinal) throws IOException {
         long queryStart = System.nanoTime();
-        ObjectNode result = prepared == null ? search.search(text, topK) : prepared.search(topK);
+        ObjectNode result = ranked
+                ? (prepared == null ? search.search(text, topK) : prepared.search(topK))
+                : (prepared == null ? search.firstMatches(text, topK) : prepared.firstMatches(topK));
         long fetchStart = System.nanoTime();
         for (JsonNode hit : result.path("candidates")) {
-            Document document = search.getStoredDocument(hit.path("doc_id").asText());
+            Document document = hit.has("lucene_doc_id")
+                    ? search.getStoredDocument(hit.path("lucene_doc_id").asInt())
+                    : search.getStoredDocument(hit.path("doc_id").asText());
             ObjectNode candidate = (ObjectNode)hit;
             candidate.put("title", document.get(search.getTitleFieldName()));
             candidate.put("text", document.get(search.getIndexFieldName()));

@@ -66,6 +66,14 @@ public class MonomialCandidateSearchTest {
                     previous = expected[id];
                 }
                 assertEquals(count, searcher.count(query));
+                List<Integer> expectedDocs = new ArrayList<>();
+                for (int d = 0; d < expected.length; d++) if (expected[d] > threshold) expectedDocs.add(d);
+                FirstMatches.Result unranked = FirstMatches.search(searcher, query, 20);
+                assertEquals(expectedDocs, unranked.docIds);
+                assertFalse(unranked.limitReached);
+                FirstMatches.Result limited = FirstMatches.search(searcher, query, 2);
+                assertEquals(expectedDocs.subList(0, Math.min(2, expectedDocs.size())), limited.docIds);
+                assertEquals(expectedDocs.size() >= 2, limited.limitReached);
             }
             MonomialCandidateQuery negative = new MonomialCandidateQuery(conditions.subList(0, 1), new double[]{-2}, 0, -1);
             assertEquals(2, searcher.count(negative));
@@ -118,6 +126,15 @@ public class MonomialCandidateSearchTest {
             MonomialCandidateSearch engine = new MonomialCandidateSearch(path, "body", "title");
             ObjectNode results = engine.search(new IndexSearcher(reader), "cat dog", 0, 2);
             assertEquals(2, results.path("returned").asInt());
+            ObjectNode firstMatches = engine.firstMatches(new IndexSearcher(reader), "cat dog", 0, 1);
+            assertEquals(1, firstMatches.path("returned").asInt());
+            assertEquals("d0", firstMatches.path("candidates").get(0).path("doc_id").asText());
+            assertFalse(firstMatches.path("candidates").get(0).has("score"));
+            assertTrue(firstMatches.path("limit_reached").asBoolean());
+            assertEquals("GREATER_THAN_OR_EQUAL_TO", firstMatches.path("total_hits_relation").asText());
+            ObjectNode none = engine.firstMatches(new IndexSearcher(reader), "cat dog", 0.75, 100);
+            assertEquals(0, none.path("returned").asInt());
+            assertEquals("EQUAL_TO", none.path("total_hits_relation").asText());
             for (JsonNode hit : results.path("candidates")) assertEquals(0.75, hit.path("score").asDouble(), 0);
             assertEquals(0, engine.search(new IndexSearcher(reader), "cat dog", 0.75, 100).path("returned").asInt());
         }

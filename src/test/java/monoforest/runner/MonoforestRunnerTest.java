@@ -33,7 +33,7 @@ public class MonoforestRunnerTest {
     }
     private String[] args(Path path) {
         return new String[]{"--index", path.toString(), "--model", model.toString(), "--query", "cat dog",
-                "--threshold", "1", "--text-field", "body", "--title-field", "heading"};
+                "--top-k", "10", "--threshold", "1", "--text-field", "body", "--title-field", "heading"};
     }
     @Test public void oneQueryReturnsStoredDocumentsAndSeparateTimings() throws Exception {
         JsonNode result = MonoforestRunner.run(args(index));
@@ -48,6 +48,35 @@ public class MonoforestRunnerTest {
         assertEquals("Example title", document.path("title").asText());
         assertEquals("cat dog cat", document.path("text").asText());
         assertEquals(2, document.path("score").asDouble(), 0);
+    }
+    @Test public void firstMatchesHotModeReturnsDocumentsWithoutScores() throws Exception {
+        String[] command = Arrays.copyOf(args(index), args(index).length + 4);
+        for (int i = 0; i < command.length; i++) if ("--top-k".equals(command[i])) command[i] = "--limit";
+        command[command.length - 4] = "--hot";
+        command[command.length - 3] = "true";
+        command[command.length - 2] = "--repeat";
+        command[command.length - 1] = "3";
+        JsonNode response = MonoforestRunner.run(command);
+        assertEquals("first_matches", response.path("retrieval_mode").asText());
+        assertEquals(3, response.path("runs").size());
+        for (JsonNode run : response.path("runs")) {
+            JsonNode result = run.path("result");
+            assertEquals(1, result.path("returned").asInt());
+            assertEquals("EQUAL_TO", result.path("total_hits_relation").asText());
+            JsonNode hit = result.path("candidates").get(0);
+            assertEquals("cat dog cat", hit.path("text").asText());
+            assertEquals("Example title", hit.path("title").asText());
+            assertFalse(hit.has("score"));
+            assertFalse(hit.has("probability"));
+            assertEquals(0, run.path("timings_ms").path("explain_ms").asDouble(), 0);
+            assertEquals(0, run.path("timings_ms").path("build_query_ms").asDouble(), 0);
+        }
+    }
+    @Test public void conflictingRetrievalOptionsAreRejected() {
+        String[] command = Arrays.copyOf(args(index), args(index).length + 2);
+        command[command.length - 2] = "--limit";
+        command[command.length - 1] = "2";
+        assertThrows(IllegalArgumentException.class, () -> MonoforestRunner.run(command));
     }
     @Test public void threeQueriesReturnSameDocumentsAndPartitionEveryTiming() throws Exception {
         String[] command = Arrays.copyOf(args(index), args(index).length + 2);
