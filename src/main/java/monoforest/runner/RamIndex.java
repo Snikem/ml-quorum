@@ -42,9 +42,12 @@ public final class RamIndex implements AutoCloseable {
             if (checkMemory) {
                 long available = Memory.availableBytes();
                 long required = Math.addExact(bytes + margin, Runtime.getRuntime().maxMemory() + reserveBytes);
+                System.err.printf(Locale.ROOT,
+                        "RAM preflight: required=%.2f GiB, estimated available=%.2f GiB (host/cgroup, clean file cache included)%n",
+                        required / (double)(1L << 30), available / (double)(1L << 30));
                 if (required > available)
                     throw new IOException("Not enough memory: index + JVM max heap + reserve needs " + required
-                            + " bytes; available after host/cgroup limits: " + available
+                            + " bytes; estimated available including reclaimable clean file cache: " + available
                             + ". Reduce -Xmx, use a smaller index, or increase the JupyterHub memory allocation.");
             }
             Path target = Files.createTempDirectory(root, "monoforest-");
@@ -74,13 +77,16 @@ public final class RamIndex implements AutoCloseable {
 
     static final class Memory {
         static long availableBytes() throws IOException {
+            return availableBytes(Path.of("/proc"));
+        }
+        static long availableBytes(Path proc) throws IOException {
             long available = -1;
-            for (String line : Files.readAllLines(Path.of("/proc/meminfo"))) {
+            for (String line : Files.readAllLines(proc.resolve("meminfo"))) {
                 if (line.startsWith("MemAvailable:")) available = Long.parseLong(line.trim().split("\\s+")[1]) * 1024;
             }
             if (available < 0) throw new IOException("Cannot determine MemAvailable on this Linux server");
-            List<String> membership = Files.readAllLines(Path.of("/proc/self/cgroup"));
-            for (String mount : Files.readAllLines(Path.of("/proc/self/mountinfo"))) {
+            List<String> membership = Files.readAllLines(proc.resolve("self/cgroup"));
+            for (String mount : Files.readAllLines(proc.resolve("self/mountinfo"))) {
                 String[] halves = mount.split(" - ", 2), fields = halves[0].split(" "), fs = halves[1].split(" ");
                 boolean v2 = fs[0].equals("cgroup2");
                 if (!v2 && !(fs[0].equals("cgroup") && Arrays.asList(fs[2].split(",")).contains("memory"))) continue;
@@ -96,13 +102,49 @@ public final class RamIndex implements AutoCloseable {
                         Path used = dir.resolve(v2 ? "memory.current" : "memory.usage_in_bytes");
                         if (Files.isRegularFile(limit) && Files.isRegularFile(used)) {
                             String value = Files.readString(limit).trim();
-                            if (!value.equals("max")) available = Math.min(available,
-                                    Math.max(0, Long.parseLong(value) - Long.parseLong(Files.readString(used).trim())));
+                            if (!value.equals("max")) {
+                                long currentBytes = Long.parseLong(Files.readString(used).trim());
+                                long cleanCache = cleanFileCacheBytes(dir.resolve("memory.stat"), v2);
+                                available = Math.min(available, cgroupHeadroom(Long.parseLong(value), currentBytes, cleanCache));
+                            }
                         }
                     }
                 }
             }
             return available;
+        }
+        /** Estimate only: clean disk-backed pages can be reclaimed, unlike tmpfs/anonymous memory.
+         * memory.stat file includes shmem; active_file and inactive_file are overlapping views,
+         * not additional free memory. Retain host MemAvailable and every visible ancestor limit.
+         */
+        static long cleanFileCacheBytes(Path stat, boolean v2) {
+            Map<String, Long> values = new HashMap<>();
+            try {
+                for (String line : Files.readAllLines(stat)) {
+                    String[] parts = line.trim().split("\\s+");
+                    if (parts.length == 2) values.put(parts[0], Long.parseLong(parts[1]));
+                }
+            } catch (IOException | NumberFormatException error) {
+                return 0; // No trustworthy breakdown: keep the conservative current/max bound.
+            }
+            String file = v2 ? "file" : "total_cache";
+            String[] exclusions = v2
+                    ? new String[]{"shmem", "file_dirty", "file_writeback", "unevictable"}
+                    : new String[]{"total_shmem", "total_dirty", "total_writeback", "total_unevictable"};
+            if (!values.containsKey(file) || values.get(file) < 0) return 0;
+            long clean = values.get(file);
+            for (String key : exclusions) {
+                Long bytes = values.get(key);
+                if (bytes == null || bytes < 0) return 0;
+                // Exclusions can overlap; subtracting all of them errs conservatively.
+                clean = Math.max(0, clean - bytes);
+            }
+            return clean;
+        }
+        static long cgroupHeadroom(long limit, long used, long cleanCache) {
+            if (limit < 0 || used < 0 || cleanCache < 0) return 0;
+            long nonReclaimable = used - Math.min(used, cleanCache);
+            return Math.max(0, limit - nonReclaimable);
         }
         private static String unescape(String value) {
             return value.replace("\\040", " ").replace("\\011", "\t").replace("\\134", "\\");

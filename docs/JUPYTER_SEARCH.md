@@ -8,7 +8,7 @@
 Команда (также работает в Terminal JupyterHub):
 
 ```bash
-java -Xmx8g -jar monoforest-0.1.0-SNAPSHOT-runner.jar \
+java -Xmx4g -jar monoforest-0.1.0-SNAPSHOT-runner.jar \
   --index /path/to/lucene_index_positions \
   --model /path/to/linear_monomials.json \
   --ram-root /dev/shm \
@@ -41,8 +41,15 @@ stored полей. Сериализация/печать JSON, передача 
 ## RAM
 
 128 ГБ на сервере не обязательно доступны процессу JupyterHub. Перед копированием
-проверяются свободное место tmpfs, MemAvailable и видимые ограничения cgroup;
-оставляется место под Java heap (`-Xmx8g`) и резерв 12 GiB (`--reserve-gib`).
+проверяются свободное место tmpfs, MemAvailable и видимые ограничения cgroup.
+При расчёте cgroup учитывается оценка освобождаемого чистого дискового кеша:
+`file - shmem - file_dirty - file_writeback - unevictable`, с нижней границей 0.
+Поэтому заполненный дисковым кешем контейнер не считается полностью занятым.
+Анонимная память, tmpfs, грязные и закреплённые страницы не добавляются в доступную
+память. При недоступной/неполной статистике применяется прежняя строгая оценка.
+Сохраняются пределы всех видимых родительских cgroup и MemAvailable хоста;
+
+оставляется место под Java heap (`-Xmx4g`) и резерв 12 GiB (`--reserve-gib`).
 Резерв — оценка, не гарантия при параллельной нагрузке. Если `/dev/shm` мал,
 нужен другой доступный tmpfs нужного размера или изменение лимита администратором.
 JAR сам ничего не монтирует и не меняет лимиты сервера.
@@ -50,7 +57,7 @@ JAR сам ничего не монтирует и не меняет лимит�
 [Linux tmpfs](https://www.kernel.org/doc/html/latest/filesystems/tmpfs.html)
 может использовать swap. Для строго RAM-only эксперимента нужен tmpfs без swap
 (опция `noswap`, если поддерживается сервером) или сервер без активного swap.
-`-Xmx8g` относится к Java heap: сам индекс хранится в tmpfs, вне heap.
+`-Xmx4g` относится к Java heap: сам индекс хранится в tmpfs, вне heap.
 
 Сборка JAR на машине разработчика:
 
@@ -59,3 +66,15 @@ mvn -Prunner package
 ```
 
 Результат: `target/monoforest-0.1.0-SNAPSHOT-runner.jar`.
+
+## Настройки вашего JupyterHub
+
+По вашей диагностике: лимит контейнера 120 GiB, `/dev/shm` — 64 MiB,
+а `/run/jupyter-monitor` — tmpfs на 120 GiB. В notebook подставлены ваш индекс,
+Java 11 и собственная папка `/run/jupyter-monitor/monoforest-anglukhikhan`.
+Используется `-Xmx4g`, чтобы оставить дополнительный запас рядом с индексом 96.46 GiB.
+
+Исправленный JAR выводит в stderr строку `RAM preflight: ... clean file cache included`.
+Копирование всё равно требует реально доступных ресурсов; это оценка, а не резервирование.
+Не требуется менять conda-среду, писать в `memory.reclaim` или сбрасывать кеш хоста.
+Определения полей: [документация cgroup v2](https://docs.kernel.org/admin-guide/cgroup-v2.html).

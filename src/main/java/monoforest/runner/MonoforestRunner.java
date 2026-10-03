@@ -15,7 +15,7 @@ public final class MonoforestRunner {
 
     public static void main(String[] args) {
         if (args.length == 0 || Arrays.asList(args).contains("--help")) {
-            System.out.println("Usage: java -Xmx8g -jar monoforest-0.1.0-SNAPSHOT-runner.jar\n"
+            System.out.println("Usage: java -Xmx4g -jar monoforest-0.1.0-SNAPSHOT-runner.jar\n"
                     + "  --index DIR --model FILE --query TEXT [--ram-root /dev/shm]\n"
                     + "  [--threshold 3] [--top-k 10] [--text-field text] [--title-field title] [--reserve-gib 12]\n"
                     + "Runs one query without warmup. stdout: JSON documents and timings. stderr: loading progress.\n"
