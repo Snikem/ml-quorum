@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import monoforest.MonoforestSearch;
+import monoforest.impl.features.queryFeatures.QueryFrequencyFamily;
 import org.apache.lucene.document.Document;
 import java.io.IOException;
 import java.nio.file.*;
@@ -18,6 +19,7 @@ public final class MonoforestRunner {
             System.out.println("Usage: java -Xmx4g -jar monoforest-0.1.0-SNAPSHOT-runner.jar\n"
                     + "  --index DIR --model FILE --query TEXT [--ram-root /dev/shm]\n"
                     + "  [--threshold 3] [--top-k 10] [--text-field text] [--title-field title] [--reserve-gib 12]\n"
+                    + "Query-frequency TSV is bundled. Optional override before -jar: -Dmonoforest.queryFrequencyTsv=/path/to/queries.tsv\n"
                     + "Runs one query without warmup. stdout: JSON documents and timings. stderr: loading progress.\n"
                     + "search_ms includes search and fetching document texts; excludes loading and printing JSON.\n"
                     + "The owned tmpfs copy is removed on exit; the original index is untouched.");
@@ -27,6 +29,21 @@ public final class MonoforestRunner {
         catch (Exception error) {
             System.err.println("Monoforest: " + error);
             System.exit(1);
+        }
+    }
+
+    private static void validateQueryFrequencySource(Path model) throws IOException {
+        JsonNode exported = JSON.readTree(model.toFile());
+        if (exported == null) throw new IOException("Empty model: " + model);
+        Set<String> frequencyNames = Set.of(QueryFrequencyFamily.MIN_LOG_FREQUENCY,
+                QueryFrequencyFamily.MAX_LOG_FREQUENCY, QueryFrequencyFamily.MEAN_LOG_FREQUENCY);
+        for (JsonNode monomial : exported.path("monomials")) {
+            for (JsonNode split : monomial.path("splits")) {
+                if (frequencyNames.contains(split.path("feature_name").asText())) {
+                    QueryFrequencyFamily.validateDefaultSource();
+                    return;
+                }
+            }
         }
     }
 
@@ -47,6 +64,7 @@ public final class MonoforestRunner {
         long reserve = Long.parseLong(options.getOrDefault("--reserve-gib", "12"));
         if (reserve < 0 || reserve > 1048576 || topK <= 0 || !Double.isFinite(threshold))
             throw new IllegalArgumentException("Invalid reserve, top-k or threshold");
+        validateQueryFrequencySource(model);
         RamIndex ram = null;
         Thread cleanup = null;
         try {

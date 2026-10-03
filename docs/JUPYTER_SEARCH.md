@@ -78,3 +78,31 @@ Java 11 и собственная папка `/run/jupyter-monitor/monoforest-an
 Копирование всё равно требует реально доступных ресурсов; это оценка, а не резервирование.
 Не требуется менять conda-среду, писать в `memory.reclaim` или сбрасывать кеш хоста.
 Определения полей: [документация cgroup v2](https://docs.kernel.org/admin-guide/cgroup-v2.html).
+
+## Частоты слов обучающих запросов
+
+Исходный `docv2_train_queries.tsv` (12.89 MiB) включён в JAR как ресурс
+`/monoforest/docv2_train_queries.tsv`. Это тот же файл, который использовался
+локально для QueryMinLogFrequency, QueryMaxLogFrequency и QueryMeanLogFrequency.
+Для обычного запуска дополнительно загружать TSV не нужно. При сборке на другом
+компьютере в Git должен быть добавлен файл
+`src/main/resources/monoforest/docv2_train_queries.tsv`.
+
+Если нужен внешний TSV, укажите JVM option **перед `-jar`**:
+
+```bash
+java -Xmx4g -Dmonoforest.queryFrequencyTsv=/path/to/docv2_train_queries.tsv \
+  -jar monoforest-0.1.0-SNAPSHOT-runner.jar --index /path/to/index \
+  --model /path/to/linear_monomials.json --query "grammar terms medicine"
+```
+
+В notebook соответствующая часть `command` выглядит так:
+
+```python
+JAVA, f"-Xmx{HEAP}", "-Dmonoforest.queryFrequencyTsv=/path/to/docv2_train_queries.tsv", "-jar", str(JAR),
+```
+
+Если указанный внешний файл недоступен, запуск завершается ошибкой, без подмены
+его встроенным корпусом. Для моделей с частотными фичами доступность источника
+проверяется **до** копирования индекса в RAM. Сам подсчёт частот остаётся в первом
+запросе и входит в `search_ms`, как до исправления. Частоты и score не заменяются нулями.

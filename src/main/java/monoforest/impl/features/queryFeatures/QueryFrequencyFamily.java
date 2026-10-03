@@ -10,11 +10,43 @@ public class QueryFrequencyFamily extends QueryFeatureFamily {
     public static final String MIN_LOG_FREQUENCY = "QueryMinLogFrequency";
     public static final String MAX_LOG_FREQUENCY = "QueryMaxLogFrequency";
     public static final String MEAN_LOG_FREQUENCY = "QueryMeanLogFrequency";
-    public static final Path DEFAULT_DATA_PATH = Paths.get("/Volumes/Ex_Volume/msmarco/docv2_train_queries.tsv");
+    public static final String DATA_PATH_PROPERTY = "monoforest.queryFrequencyTsv";
+    public static final String DEFAULT_RESOURCE = "/monoforest/docv2_train_queries.tsv";
+    public static final Path DEFAULT_DATA_PATH = Paths.get("docv2_train_queries.tsv");
     private final Path dataPath;
     private Map<String, Integer> frequencies;
 
-    public QueryFrequencyFamily() { this(DEFAULT_DATA_PATH); }
+    /** Default: the original training TSV packaged in the JAR; explicit JVM property overrides it. */
+    public QueryFrequencyFamily() {
+        super(MIN_LOG_FREQUENCY, MAX_LOG_FREQUENCY, MEAN_LOG_FREQUENCY);
+        String configured = System.getProperty(DATA_PATH_PROPERTY);
+        if (configured != null && configured.trim().isEmpty())
+            throw new IllegalArgumentException(DATA_PATH_PROPERTY + " must not be empty");
+        this.dataPath = configured == null ? null : Paths.get(configured);
+    }
+
+    private InputStream openSource() throws IOException {
+        if (dataPath != null) return Files.newInputStream(dataPath);
+        InputStream input = QueryFrequencyFamily.class.getResourceAsStream(DEFAULT_RESOURCE);
+        if (input == null) throw new FileNotFoundException("Missing JAR resource " + DEFAULT_RESOURCE
+                + "; rebuild the runner or set -D" + DATA_PATH_PROPERTY + "=/path/to/docv2_train_queries.tsv");
+        return input;
+    }
+
+    /** Fail before copying the large index if a model needs this resource and it is unavailable. */
+    public static void validateDefaultSource() throws IOException {
+        QueryFrequencyFamily family = new QueryFrequencyFamily();
+        try (InputStream input = family.openSource()) {
+            if (input.read() < 0) throw new IOException("Query-frequency TSV is empty: " + family.sourceName());
+        } catch (IOException error) {
+            throw new IOException("Query-frequency TSV is unavailable: " + family.sourceName()
+                    + "; set -D" + DATA_PATH_PROPERTY + "=/path/to/docv2_train_queries.tsv or use the bundled resource", error);
+        }
+    }
+
+    private String sourceName() {
+        return dataPath == null ? "classpath:" + DEFAULT_RESOURCE : dataPath.toString();
+    }
 
     public QueryFrequencyFamily(Path dataPath) {
         super(MIN_LOG_FREQUENCY, MAX_LOG_FREQUENCY, MEAN_LOG_FREQUENCY);
@@ -40,7 +72,7 @@ public class QueryFrequencyFamily extends QueryFeatureFamily {
     public void prepare() {
         if (frequencies != null) return;
         Map<String, Integer> loaded = new HashMap<>();
-        try (BufferedReader reader = Files.newBufferedReader(dataPath, StandardCharsets.UTF_8)) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(openSource(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\t");
@@ -49,7 +81,7 @@ public class QueryFrequencyFamily extends QueryFeatureFamily {
                 for (String word : uniqueWords) loaded.merge(word, 1, Integer::sum);
             }
         } catch (IOException e) {
-            throw new UncheckedIOException("Не удалось загрузить частоты из " + dataPath, e);
+            throw new UncheckedIOException("Не удалось загрузить частоты из " + sourceName(), e);
         }
         frequencies = Collections.unmodifiableMap(loaded);
     }
