@@ -90,8 +90,25 @@ public final class MonomialCandidateSearch {
     /** At most topK hits. A strict threshold can legitimately return fewer documents. */
     public ObjectNode search(IndexSearcher searcher, String queryText, double threshold, int topK) throws IOException {
         if (topK <= 0) throw new IllegalArgumentException("topK must be positive");
+        long buildStart = System.nanoTime();
         MonomialCandidateQuery query = buildQuery(searcher.getIndexReader(), queryText, threshold);
+        long buildNanos = System.nanoTime() - buildStart;
+        return execute(searcher, queryText, threshold, topK, query, buildNanos);
+    }
+
+    /** Reuse a query prepared for this reader; query-dependent resources are already resolved. */
+    public ObjectNode searchPrepared(IndexSearcher searcher, String queryText, double threshold,
+                                     int topK, MonomialCandidateQuery query) throws IOException {
+        if (topK <= 0) throw new IllegalArgumentException("topK must be positive");
+        return execute(searcher, queryText, threshold, topK, query, 0);
+    }
+
+    private ObjectNode execute(IndexSearcher searcher, String queryText, double threshold, int topK,
+                               MonomialCandidateQuery query, long buildNanos) throws IOException {
+        long searchStart = System.nanoTime();
         TopDocs hits = searcher.search(query, topK);
+        long searchNanos = System.nanoTime() - searchStart;
+        long explainNanos = 0, idNanos = 0;
         ObjectNode result = JSON.createObjectNode();
         result.put("query", queryText);
         result.put("threshold", threshold);
@@ -104,12 +121,21 @@ public final class MonomialCandidateSearch {
         for (ScoreDoc hit : hits.scoreDocs) {
             // Explanation exposes the double model score; subtracting the shift
             // from ScoreDoc.score alone would retain Lucene's float rounding.
+            long explainStart = System.nanoTime();
             double raw = searcher.explain(query, hit.doc).getDetails()[0].getValue().doubleValue();
+            explainNanos += System.nanoTime() - explainStart;
+            long idStart = System.nanoTime();
             String id = searcher.doc(hit.doc, Collections.singleton("id")).get("id");
+            idNanos += System.nanoTime() - idStart;
             if (id == null) throw new IllegalStateException("Candidate lacks stored id field");
             double probability = raw >= 0 ? 1 / (1 + Math.exp(-raw)) : Math.exp(raw) / (1 + Math.exp(raw));
             candidates.addObject().put("doc_id", id).put("score", raw).put("probability", probability);
         }
+        result.putObject("timings_ms")
+                .put("build_query_ms", buildNanos / 1e6)
+                .put("lucene_search_ms", searchNanos / 1e6)
+                .put("explain_ms", explainNanos / 1e6)
+                .put("fetch_ids_ms", idNanos / 1e6);
         return result;
     }
 

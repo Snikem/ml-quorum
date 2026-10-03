@@ -77,6 +77,26 @@ public class MonoforestSearch implements AutoCloseable {
         return engine.search(searcher, queryText, threshold, maxQty);
     }
 
+    /** Prepare once for repeated searches of the same text on this open index. */
+    public PreparedSearch prepareQuery(String queryText) throws IOException {
+        ensureOpen();
+        Objects.requireNonNull(queryText, "queryText");
+        return new PreparedSearch(queryText, engine.buildQuery(reader, queryText, threshold));
+    }
+
+    public final class PreparedSearch {
+        private final String text;
+        private final monoforest.impl.MonomialCandidateQuery query;
+        private PreparedSearch(String text, monoforest.impl.MonomialCandidateQuery query) {
+            this.text = text;
+            this.query = query;
+        }
+        public ObjectNode search(int maxQty) throws IOException {
+            ensureOpen();
+            return engine.searchPrepared(searcher, text, threshold, maxQty, query);
+        }
+    }
+
     /** Optional document preview for the manual test program. */
     public Document getStoredDocument(String docId) throws IOException {
         ensureOpen();

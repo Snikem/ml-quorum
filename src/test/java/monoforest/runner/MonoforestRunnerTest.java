@@ -49,6 +49,89 @@ public class MonoforestRunnerTest {
         assertEquals("cat dog cat", document.path("text").asText());
         assertEquals(2, document.path("score").asDouble(), 0);
     }
+    @Test public void threeQueriesReturnSameDocumentsAndPartitionEveryTiming() throws Exception {
+        String[] command = Arrays.copyOf(args(index), args(index).length + 2);
+        command[command.length - 2] = "--repeat";
+        command[command.length - 1] = "3";
+        JsonNode response = MonoforestRunner.run(command);
+        assertEquals(3, response.path("query_count").asInt());
+        assertEquals(3, response.path("runs").size());
+        assertEquals(index.toAbsolutePath().toString(), response.path("active_index").asText());
+        assertEquals(0, response.path("warmup_queries").asInt());
+        int ordinal = 0;
+        for (JsonNode run : response.path("runs")) {
+            assertEquals(++ordinal, run.path("run").asInt());
+            double sum = 0;
+            for (String key : new String[]{"build_query_ms", "lucene_search_ms", "explain_ms",
+                    "fetch_ids_ms", "fetch_documents_ms", "other_ms"}) {
+                assertTrue(run.path("timings_ms").path(key).isNumber());
+                double value = run.path("timings_ms").path(key).asDouble();
+                assertTrue(Double.isFinite(value) && value >= 0);
+                sum += value;
+            }
+            assertEquals(run.path("search_ms").asDouble(), sum, 0.000001);
+            assertEquals(response.path("result").path("candidates"), run.path("result").path("candidates"));
+            assertEquals("cat dog cat", run.path("result").path("candidates").get(0).path("text").asText());
+        }
+        assertEquals(response.path("runs").get(0).path("search_ms"), response.path("search_ms"));
+    }
+    @Test public void hotModeSeparatesPreparationWarmupAndThreeMeasuredSearches() throws Exception {
+        useFrequencyModel();
+        String[] command = Arrays.copyOf(args(index), args(index).length + 4);
+        command[command.length - 4] = "--repeat";
+        command[command.length - 3] = "3";
+        command[command.length - 2] = "--hot";
+        command[command.length - 1] = "true";
+        JsonNode response = MonoforestRunner.run(command);
+        assertEquals("hot_prepared_query", response.path("benchmark_mode").asText());
+        assertEquals(1, response.path("warmup_queries").asInt());
+        assertTrue(response.path("prepare_query_ms").asDouble() > 0);
+        assertEquals(3, response.path("runs").size());
+        assertTrue(response.path("warmup").path("search_ms").asDouble() > 0);
+        for (JsonNode run : response.path("runs")) {
+            assertEquals(0, run.path("timings_ms").path("build_query_ms").asDouble(), 0);
+            assertEquals(response.path("warmup").path("result").path("candidates"), run.path("result").path("candidates"));
+            assertTrue(run.path("timings_ms").path("lucene_search_ms").asDouble() > 0);
+        }
+    }
+    @Test public void preparedSearchDoesNotReadFrequencySourceAgain() throws Exception {
+        useFrequencyModel();
+        Path tsv = temp.newFile("frequency.tsv").toPath();
+        Files.writeString(tsv, "1\tcat dog\n2\tcat dog\n3\tcat dog\n4\tcat dog\n");
+        String previous = System.getProperty(QueryFrequencyFamily.DATA_PATH_PROPERTY);
+        System.setProperty(QueryFrequencyFamily.DATA_PATH_PROPERTY, tsv.toString());
+        try (monoforest.MonoforestSearch search = new monoforest.MonoforestSearch(
+                index.toString(), model.toString(), 1, "body", "heading")) {
+            monoforest.MonoforestSearch.PreparedSearch prepared = search.prepareQuery("cat dog");
+            Files.delete(tsv);
+            for (int i = 0; i < 3; i++) {
+                JsonNode result = prepared.search(10);
+                assertEquals(1, result.path("returned").asInt());
+                assertEquals(0, result.path("timings_ms").path("build_query_ms").asDouble(), 0);
+            }
+        } finally { restoreFrequencyProperty(previous); }
+    }
+    @Test public void rejectsNonPositiveRepeats() {
+        for (String count : new String[]{"0", "-1"}) {
+            String[] command = Arrays.copyOf(args(index), args(index).length + 2);
+            command[command.length - 2] = "--repeat";
+            command[command.length - 1] = count;
+            assertThrows(IllegalArgumentException.class, () -> MonoforestRunner.run(command));
+        }
+    }
+    @Test public void repeatedEmptyResultsHaveZeroExplainAndIdTime() throws Exception {
+        String[] command = Arrays.copyOf(args(index), args(index).length + 2);
+        command[command.length - 2] = "--repeat";
+        command[command.length - 1] = "3";
+        // threshold is the value immediately after --threshold.
+        for (int i = 0; i < command.length; i++) if ("--threshold".equals(command[i])) command[i+1] = "99";
+        JsonNode response = MonoforestRunner.run(command);
+        for (JsonNode run : response.path("runs")) {
+            assertEquals(0, run.path("result").path("returned").asInt());
+            assertEquals(0, run.path("timings_ms").path("explain_ms").asDouble(), 0);
+            assertEquals(0, run.path("timings_ms").path("fetch_ids_ms").asDouble(), 0);
+        }
+    }
     @Test public void copyIsSearchableAndOnlyOwnedCopyIsDeleted() throws Exception {
         Path root = temp.newFolder("ram-root").toPath();
         Path unrelated = Files.writeString(root.resolve("keep.txt"), "keep");
